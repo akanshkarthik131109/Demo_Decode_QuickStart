@@ -1,0 +1,68 @@
+package org.firstinspires.ftc.teamcode.config.command;
+
+import com.pedropathing.ivy.Command;
+import com.pedropathing.ivy.behaviors.BlockedBehavior;
+import com.pedropathing.ivy.behaviors.ConflictBehavior;
+import com.pedropathing.ivy.behaviors.EndCondition;
+import com.pedropathing.ivy.behaviors.InterruptedBehavior;
+
+import org.firstinspires.ftc.teamcode.config.subsystem.VisionSubsystem;
+
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+
+public class VisionCommand implements Command {
+    VisionSubsystem visionSubsystem;
+
+    public VisionCommand(VisionSubsystem visionSubsystem){
+        this.visionSubsystem = visionSubsystem;
+    }
+
+    @Override
+    public Set<Object> requirements() {
+        Set<Object> req = new HashSet<>();
+        req.add(visionSubsystem.getCamera());
+        return req;
+    }
+
+    @Override
+    public int priority() {
+        return 0;
+    }
+
+    @Override
+    public InterruptedBehavior interruptedBehavior() {
+        return null;
+    }
+
+    @Override
+    public ConflictBehavior conflictBehavior() {
+        return null;
+    }
+
+    @Override
+    public BlockedBehavior blockedBehavior() {
+        return null;
+    }
+
+    @Override
+    public void start() {
+        visionSubsystem.initCamera();
+    }
+
+    @Override
+    public boolean done() {
+        return false;
+    }
+
+    @Override
+    public void execute() {
+
+    }
+
+    @Override
+    public void end(EndCondition endCondition) {
+
+    }
+}

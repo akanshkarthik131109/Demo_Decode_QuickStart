@@ -27,6 +27,15 @@ public class IntakeCommand implements Command {
     HammerSubsystem hammer;
     boolean outtake = false;
 
+    boolean stopIntake = false;
+
+    public IntakeCommand(IntakeSubsystem intake, SpindexerSubsystem spindexer, HammerSubsystem hammer, Boolean outtake, Boolean stopIntake){
+        this.intake = intake;
+        this.spindexer = spindexer;
+        this.hammer = hammer;
+        this.outtake = outtake;
+        this.stopIntake = stopIntake;
+    }
     public IntakeCommand(IntakeSubsystem intake, SpindexerSubsystem spindexer, HammerSubsystem hammer, Boolean outtake){
         this.intake = intake;
         this.spindexer = spindexer;
@@ -53,17 +62,17 @@ public class IntakeCommand implements Command {
 
     @Override
     public InterruptedBehavior interruptedBehavior() {
-        return null;
+        return InterruptedBehavior.END;
     }
 
     @Override
     public ConflictBehavior conflictBehavior() {
-        return null;
+        return ConflictBehavior.OVERRIDE;
     }
 
     @Override
     public BlockedBehavior blockedBehavior() {
-        return null;
+        return BlockedBehavior.CANCEL;
     }
 
     @Override
@@ -77,7 +86,7 @@ public class IntakeCommand implements Command {
 
     @Override
     public boolean done() {
-        return false;
+        return stopIntake;
     }
 
     @Override

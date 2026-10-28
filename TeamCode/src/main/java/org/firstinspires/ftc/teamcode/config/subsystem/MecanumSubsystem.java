@@ -1,14 +1,14 @@
 package org.firstinspires.ftc.teamcode.config.subsystem;
 
+import com.pedropathing.drivetrain.DrivePowers;
 import com.pedropathing.follower.Follower;
-import com.pedropathing.geometry.BezierPoint;
-import com.pedropathing.geometry.Pose;
+import com.pedropathing.math.Pose;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.teamcode.config.util.Alliance;
-import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
+import org.firstinspires.ftc.teamcode.pedro.Constants;
 
 public class MecanumSubsystem {
     Follower f;
@@ -16,11 +16,11 @@ public class MecanumSubsystem {
     private boolean hold = false, field=true;
 
     public MecanumSubsystem(HardwareMap hardwareMap, Alliance a, Pose start){
-        f = Constants.createFollower(hardwareMap);
-        f.setStartingPose(start);
+        f = Constants.create(hardwareMap);
+        f.setPose(start);
         this.a=a;
     }
-    public void startDrive(){f.startTeleOpDrive();}
+    public void startDrive(){f.manual();}
     public void resetDrive(Pose3D pose){
         f.setPose(new Pose(pose.getPosition().x, pose.getPosition().y, pose.getOrientation().getYaw()));
     }
@@ -31,13 +31,13 @@ public class MecanumSubsystem {
     public void drive(Gamepad g) {
         if (!hold)
             if (field)
-                f.setTeleOpDrive(-g.left_stick_y, -g.left_stick_x, -g.right_stick_x, false, a == Alliance.BLUE ? Math.toRadians(180) : 0);
+                f.manual( -g.left_stick_y, -g.left_stick_x, -g.right_stick_x);
             else
-                f.setTeleOpDrive(-g.left_stick_y, -g.left_stick_x, -g.right_stick_x, true);
+                f.manual(-g.left_stick_y, -g.left_stick_x, -g.right_stick_x);
     }
 
     public void holdCurrent() { // useful for parking
-        f.holdPoint(new BezierPoint(f.getPose()), f.getHeading(), true);
+        f.hold(f.pose());
         hold = true;
     }
 
@@ -50,20 +50,20 @@ public class MecanumSubsystem {
     }
 
     public void setStart(Pose start) {
-        f.setStartingPose(start);
+        f.setPose(start);
     }
 
     public Pose getPose() {
-        return f.getPose();
+        return f.pose();
     }
 
     public Pose isBusy() {
-        return f.getPose();
+        return f.pose();
     }
 
-    public double getT() {
-        return f.getCurrentTValue();
-    }
+//    public double getT() {
+//        return f.getCurrentTValue();
+//    }
 
     public Follower getFollower() { return f;}
 }

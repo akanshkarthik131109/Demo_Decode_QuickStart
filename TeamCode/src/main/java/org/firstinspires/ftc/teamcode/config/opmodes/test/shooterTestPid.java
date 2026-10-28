@@ -2,16 +2,12 @@ package org.firstinspires.ftc.teamcode.config.opmodes.test;
 
 import static com.pedropathing.ivy.Scheduler.schedule;
 import static com.pedropathing.ivy.commands.Commands.instant;
-import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.gamepad1;
-import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.hardwareMap;
 
 import com.acmerobotics.dashboard.config.Config;
-import com.pedropathing.geometry.Pose;
+import com.pedropathing.math.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.config.Robot;
-import org.firstinspires.ftc.teamcode.config.command.ShooterCommand;
-import org.firstinspires.ftc.teamcode.config.constants.RobotValues;
 import org.firstinspires.ftc.teamcode.config.subsystem.HammerSubsystem;
 import org.firstinspires.ftc.teamcode.config.subsystem.MecanumSubsystem;
 import org.firstinspires.ftc.teamcode.config.subsystem.ShooterSubsystem;
@@ -19,8 +15,8 @@ import org.firstinspires.ftc.teamcode.config.util.Alliance;
 
 
 @Config
-@TeleOp(name = "shooterTestKalmanAndPid", group = "test")
-public class shooterTestKalmanAndPid extends Robot {
+@TeleOp(name = "shooterTestPid", group = "test")
+public class shooterTestPid extends Robot {
 
     MecanumSubsystem drive;
     ShooterSubsystem shooter;
@@ -61,8 +57,7 @@ public class shooterTestKalmanAndPid extends Robot {
         super.loop();
 
 
-        telemetry.addData("Velocity Unfiltered", shooter.getVelocityUnfiltered());
-        telemetry.addData("KF Estimate", shooter.getEstimatedVelocity());
+        telemetry.addData("KF Estimate", shooter.getVelocity());
         telemetry.addData("Target Velocity", targetVel);
         telemetry.update();
     }

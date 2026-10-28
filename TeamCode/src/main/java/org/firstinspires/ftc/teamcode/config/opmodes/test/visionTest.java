@@ -35,7 +35,7 @@ public class visionTest extends Robot {
 
         if(VisionSubsystem.dets != null){
             for(AprilTagDetection det : VisionSubsystem.dets){
-                telemetry.addData("tag " + det.id + " range", det.ftcPose.range);
+                telemetry.addData("tag " + det + " range", det.ftcPose.range);
             }
         }
 

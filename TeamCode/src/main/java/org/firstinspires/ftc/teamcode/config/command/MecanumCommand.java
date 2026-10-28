@@ -76,7 +76,7 @@ public class MecanumCommand implements Command {
     }
 
     public CommandBuilder reset(){
-        Pose3D p = visionSubsystem.getAprilTagPositionStationary(mecanumSubsystem.getFollower().getTangentialVelocity());
+        Pose3D p = visionSubsystem.getAprilTagPositionStationary(mecanumSubsystem.getFollower().tangentialVelocity());
         return Commands.instant(() -> mecanumSubsystem.resetDrive(p));
     }
 

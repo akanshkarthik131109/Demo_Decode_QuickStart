@@ -2,32 +2,23 @@ package org.firstinspires.ftc.teamcode.config.subsystem;
 
 import static org.firstinspires.ftc.teamcode.config.constants.RobotValues.SHOOTER_LOOKUP_TABLE;
 
-import com.pedropathing.geometry.Pose;
+import com.pedropathing.controllers.PIDController;
+import com.pedropathing.math.Pose;
+import com.pedropathing.paths.interpolator.Interpolator;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
-import com.seattlesolvers.solverslib.controller.PIDFController;
-import com.seattlesolvers.solverslib.util.InterpLUT;
+import com.qualcomm.robotcore.util.Range;
+
 import static org.firstinspires.ftc.teamcode.config.constants.RobotValues.SHOOTER_PIDF;
 import static org.firstinspires.ftc.teamcode.config.constants.RobotValues.VELOCITYCOMP_GAIN_CLOSE;
 import static org.firstinspires.ftc.teamcode.config.constants.RobotValues.VELOCITYCOMP_GAIN_FAR;
 
-import com.ThermalEquilibrium.homeostasis.Filters.FilterAlgorithms.KalmanFilter;
-
 public class ShooterSubsystem {
     public DcMotorEx shooter;
     public Servo hood;
+    PIDController pidf;
 
-    InterpLUT shooterLUT;
-    InterpLUT hoodLUT;
-
-    PIDFController pidf;
-
-    KalmanFilter kf;
-
-    public static double Q = 0;
-    public static double R = 0;
-    public static int N = 0;
 
     Pose goalPose;
     public boolean isShooting = false;
@@ -40,65 +31,70 @@ public class ShooterSubsystem {
 
         this.goalPose = goalPose;
 
-        pidf = new PIDFController(SHOOTER_PIDF.p, SHOOTER_PIDF.i, SHOOTER_PIDF.d, SHOOTER_PIDF.f);
-
-        kf = new KalmanFilter(Q, R, N);
-
-        shooterLUT = new InterpLUT();
-        hoodLUT = new InterpLUT();
-
-        shooterLUT.add(SHOOTER_LOOKUP_TABLE[0][0], SHOOTER_LOOKUP_TABLE[0][1]);
-        shooterLUT.add(SHOOTER_LOOKUP_TABLE[1][0], SHOOTER_LOOKUP_TABLE[1][1]);
-        shooterLUT.add(SHOOTER_LOOKUP_TABLE[2][0], SHOOTER_LOOKUP_TABLE[2][1]);
-        shooterLUT.add(SHOOTER_LOOKUP_TABLE[3][0], SHOOTER_LOOKUP_TABLE[3][1]);
-        shooterLUT.add(SHOOTER_LOOKUP_TABLE[4][0], SHOOTER_LOOKUP_TABLE[4][1]);
-        shooterLUT.add(SHOOTER_LOOKUP_TABLE[5][0], SHOOTER_LOOKUP_TABLE[5][1]);
-        shooterLUT.add(SHOOTER_LOOKUP_TABLE[6][0], SHOOTER_LOOKUP_TABLE[6][1]);
-        shooterLUT.add(SHOOTER_LOOKUP_TABLE[7][0], SHOOTER_LOOKUP_TABLE[7][1]);
-        shooterLUT.add(SHOOTER_LOOKUP_TABLE[8][0], SHOOTER_LOOKUP_TABLE[8][1]);
-
-
-        hoodLUT.add(SHOOTER_LOOKUP_TABLE[0][0], SHOOTER_LOOKUP_TABLE[0][2]);
-        hoodLUT.add(SHOOTER_LOOKUP_TABLE[1][0], SHOOTER_LOOKUP_TABLE[1][2]);
-        hoodLUT.add(SHOOTER_LOOKUP_TABLE[2][0], SHOOTER_LOOKUP_TABLE[2][2]);
-        hoodLUT.add(SHOOTER_LOOKUP_TABLE[3][0], SHOOTER_LOOKUP_TABLE[3][2]);
-        hoodLUT.add(SHOOTER_LOOKUP_TABLE[4][0], SHOOTER_LOOKUP_TABLE[4][2]);
-        hoodLUT.add(SHOOTER_LOOKUP_TABLE[5][0], SHOOTER_LOOKUP_TABLE[5][2]);
-        hoodLUT.add(SHOOTER_LOOKUP_TABLE[6][0], SHOOTER_LOOKUP_TABLE[6][2]);
-        hoodLUT.add(SHOOTER_LOOKUP_TABLE[7][0], SHOOTER_LOOKUP_TABLE[7][2]);
-        hoodLUT.add(SHOOTER_LOOKUP_TABLE[8][0], SHOOTER_LOOKUP_TABLE[8][2]);
+        pidf = new PIDController(SHOOTER_PIDF.p, SHOOTER_PIDF.i, SHOOTER_PIDF.d);
     }
 
-    public double getVelocityUnfiltered() {
+    public double[] interpolateDistance(double distance){
+        int i = 0;
+        while(distance < SHOOTER_LOOKUP_TABLE[i][0]) {i++;}
+
+        double d0 = SHOOTER_LOOKUP_TABLE[i][0];
+        double d1 = SHOOTER_LOOKUP_TABLE[i + 1][0];
+
+        double shooterVel = Range.scale(
+                distance, d0, d1,
+                SHOOTER_LOOKUP_TABLE[i][1],
+                SHOOTER_LOOKUP_TABLE[i + 1][1]
+        );
+
+        double hoodPos = Range.scale(
+                distance, d0, d1,
+                SHOOTER_LOOKUP_TABLE[i][2],
+                SHOOTER_LOOKUP_TABLE[i + 1][2]
+        );
+
+        double spindexerVel = Range.scale(
+                distance, d0, d1,
+                SHOOTER_LOOKUP_TABLE[i][3],
+                SHOOTER_LOOKUP_TABLE[i + 1][3]
+        );
+
+        double lookupTime = Range.scale(
+                distance, d0, d1,
+                SHOOTER_LOOKUP_TABLE[i][4],
+                SHOOTER_LOOKUP_TABLE[i + 1][4]
+        );
+
+        return new double[]{shooterVel, hoodPos, spindexerVel, lookupTime};
+    }
+
+    public double getVelocity() {
         return -((((shooter.getVelocity())) / 28) * 60);
     }
 
-    public double getEstimatedVelocity(){
-        return kf.estimate(getVelocityUnfiltered());
-    }
 
     public void setWheelVel(double targetVel){
-        double power = pidf.calculate(getEstimatedVelocity(), targetVel);
+        double power = pidf.calculate(getVelocity(), targetVel);
         shooter.setPower(power);
     }
-    
+
 
     public void setHoodAngle(double target){
         hood.setPosition(target);
     }
 
     public double getDistance(Pose currentPose){
-        return currentPose.distanceFrom(goalPose);
+        return currentPose.distance(goalPose);
     }
 
     public void shoot(Pose currentPose){
         double distance = getDistance(currentPose);
-        double shooterTarget = shooterLUT.get(distance);
+        double shooterTarget = interpolateDistance(distance)[0];
         setWheelVel(shooterTarget);
 
-        double currentVel = getEstimatedVelocity();
+        double currentVel = getVelocity();
         double gain = (distance > 90) ? VELOCITYCOMP_GAIN_FAR : VELOCITYCOMP_GAIN_CLOSE;
-        double hoodPos = hoodLUT.get(distance);
+        double hoodPos = interpolateDistance(distance)[1];
         hoodPos = hoodPos - ((shooterTarget - currentVel) / shooterTarget) * gain;
 
         setHoodAngle(hoodPos);

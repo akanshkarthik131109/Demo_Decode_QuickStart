@@ -16,6 +16,8 @@ public class intakeTest extends Robot {
     SpindexerSubsystem spindexer;
     HammerSubsystem hammer;
 
+    boolean stopIntake = false;
+
     @Override
     public void init(){
         super.reset();
@@ -26,8 +28,14 @@ public class intakeTest extends Robot {
 
     @Override
     public void loop(){
-        if(gamepad1.aWasPressed()) schedule(new IntakeCommand(intake, spindexer, hammer, false));
-        if(gamepad1.bWasPressed()) schedule(new IntakeCommand(intake, spindexer, hammer, true));
+        if(gamepad1.aWasPressed()) {
+            stopIntake = !stopIntake;
+            schedule(new IntakeCommand(intake, spindexer, hammer, false, stopIntake));
+        }
+        if(gamepad1.bWasPressed()) {
+            stopIntake = !stopIntake;
+            schedule(new IntakeCommand(intake, spindexer, hammer, true, stopIntake));
+        }
 
         super.loop();
     }

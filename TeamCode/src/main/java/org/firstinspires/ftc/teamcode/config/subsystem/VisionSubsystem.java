@@ -26,6 +26,7 @@ import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagGameDatabase;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
+import org.firstinspires.ftc.vision.apriltag.AprilTagSingleDetection;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -96,7 +97,10 @@ public class VisionSubsystem {
 
     public AprilTagDetection getDetection(int wantedId) {
         if (dets == null || dets.isEmpty()) return null;
-        for (AprilTagDetection det : dets) if (det.id == wantedId) return det;
+        for (AprilTagDetection det : dets) {
+            AprilTagSingleDetection singleTag = (AprilTagSingleDetection) det;
+            if (singleTag.id == wantedId) return det;
+        }
         return null;
     }
 
@@ -113,8 +117,9 @@ public class VisionSubsystem {
         dets = aprilTagProc.getDetections();
         if (dets == null || dets.isEmpty()) return null;
         for (AprilTagDetection det : dets) {
+            AprilTagSingleDetection singleTag = (AprilTagSingleDetection) det;
             if (det == null) continue;
-            if (det.metadata == null || det.ftcPose == null) continue;
+            if (singleTag.metadata == null || det.ftcPose == null) continue;
 
             return det.robotPose;
         }
@@ -133,9 +138,10 @@ public class VisionSubsystem {
         if (detections == null || detections.isEmpty()) return -1;
 
         for (AprilTagDetection det : detections) {
+            AprilTagSingleDetection singleTag = (AprilTagSingleDetection) det;
             if (det == null) continue;
-            if(det.id == 24 || det.id == 20) continue;
-            int mappedOrder = mapTag(det.id);
+            if(singleTag.id == 24 || singleTag.id == 20) continue;
+            int mappedOrder = mapTag(singleTag.id);
             if (mappedOrder == 0) continue;
 
             return mappedOrder;
@@ -189,10 +195,11 @@ public class VisionSubsystem {
 
         for (AprilTagDetection det : dets) {
             if (det == null) continue;
-            if (det.metadata == null || det.ftcPose == null) continue;
+            AprilTagSingleDetection singleTag = (AprilTagSingleDetection) det;
+            if (singleTag.metadata == null || det.ftcPose == null) continue;
 
-            tagX = det.metadata.fieldPosition.get(0);
-            tagY = det.metadata.fieldPosition.get(1);
+            tagX = singleTag.metadata.fieldPosition.get(0);
+            tagY = singleTag.metadata.fieldPosition.get(1);
 
             double bearingRad = Math.toRadians(det.ftcPose.bearing);
             double elevationRad = Math.toRadians(det.ftcPose.elevation + CAMERA_PITCH_DEG);

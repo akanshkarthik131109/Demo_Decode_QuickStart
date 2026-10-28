@@ -10,7 +10,7 @@ import static org.firstinspires.ftc.teamcode.config.constants.RobotValues.TURRET
 import static org.firstinspires.ftc.teamcode.config.constants.RobotValues.TURRET_kP;
 
 import com.pedropathing.follower.Follower;
-import com.pedropathing.geometry.Pose;
+import com.pedropathing.math.Pose;
 import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.CRServoImplEx;
@@ -19,7 +19,6 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PwmControl;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
-import com.seattlesolvers.solverslib.controller.PIDFController;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
@@ -88,19 +87,19 @@ public class TurretSubsystem {
         if(Double.isNaN(yVel) || Double.isInfinite(yVel)) yVel = 0.0;
         if(Double.isNaN(headVel) || Double.isInfinite(headVel)) headVel = 0.0;
 
-        double predX = follower.getPose().getX() + xVel * kTurret;
-        double predY = follower.getPose().getY() + yVel * kTurret;
-        double predHead = follower.getPose().getHeading() + headVel * kTurretHeading;
+        double predX = follower.f.pose().x() + xVel * kTurret;
+        double predY = follower.f.pose().y() + yVel * kTurret;
+        double predHead = follower.f.pose().heading() + headVel * kTurretHeading;
 
         return new Pose(predX, predY, predHead);
     }
 
     public void setTargetHeading(MecanumSubsystem follower){
-        Pose currPose = USE_LOOKAHEAD ? getFuturePose(follower) : follower.getPose();
+        Pose currPose = USE_LOOKAHEAD ? getFuturePose(follower) : follower.f.pose();
 
-        double angle = Math.atan2((goalPose.getY() - currPose.getY()), (goalPose.getX() - currPose.getX()));
+        double angle = Math.atan2((goalPose.y() - currPose.y()), (goalPose.x() - currPose.x()));
 
-        targetHeading = 180 + angle - currPose.getHeading();
+        targetHeading = 180 + angle - currPose.heading();
         targetHeading = Range.clip(targetHeading, TURRET_MIN_ANGLE, TURRET_MAX_ANGLE);
     }
 

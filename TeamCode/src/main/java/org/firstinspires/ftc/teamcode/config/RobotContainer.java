@@ -1,12 +1,12 @@
 package org.firstinspires.ftc.teamcode.config;
 
 import com.pedropathing.follower.Follower;
-import com.pedropathing.util.Timer;
+import com.pedropathing.utils.Timer;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.config.command.VisionCommand;
-import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
+import org.firstinspires.ftc.teamcode.pedro.Constants;
 import org.firstinspires.ftc.teamcode.config.subsystem.VisionSubsystem;
 import org.firstinspires.ftc.teamcode.config.util.Alliance;
 
@@ -34,13 +34,13 @@ public class RobotContainer {
 
         visionCommand = new VisionCommand(visionSubsystem);
 
-        f = Constants.createFollower(h);
+        f = Constants.create(h);
         hubs = h.getAll(LynxModule.class);
         for (LynxModule hub : hubs) {
             hub.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
         }
 
-        loop.resetTimer();
+        loop.reset();
 
         periodic();
     }

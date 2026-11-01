@@ -19,7 +19,7 @@ public class driveTest extends Robot {
 
     public static Alliance a = Alliance.BLUE;
 
-    Pose start = new Pose(0, 0, 0);
+    Pose start = new Pose(0, 0, 0.1);
 
     @Override
     public void init(){
@@ -28,6 +28,9 @@ public class driveTest extends Robot {
         vision = new VisionSubsystem(hardwareMap, a);
         driveCommand = new MecanumCommand(drive, vision, gamepad1);
         schedule(driveCommand);
+
+        telemetry.addData("Start Pose is Null", start == null);
+        telemetry.update();
     }
 
     @Override

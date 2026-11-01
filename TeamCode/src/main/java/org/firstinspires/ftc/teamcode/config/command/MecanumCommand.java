@@ -42,17 +42,17 @@ public class MecanumCommand implements Command {
 
     @Override
     public InterruptedBehavior interruptedBehavior() {
-        return null;
+        return InterruptedBehavior.END;
     }
 
     @Override
     public ConflictBehavior conflictBehavior() {
-        return null;
+        return ConflictBehavior.OVERRIDE;
     }
 
     @Override
     public BlockedBehavior blockedBehavior() {
-        return null;
+        return BlockedBehavior.CANCEL;
     }
     @Override
     public void start(){

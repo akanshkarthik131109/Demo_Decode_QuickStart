@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.config.command;
 
-import com.pedropathing.math.Pose;
 import com.pedropathing.ivy.behaviors.BlockedBehavior;
 import com.pedropathing.ivy.behaviors.ConflictBehavior;
 import com.pedropathing.ivy.behaviors.EndCondition;
@@ -10,37 +9,36 @@ import com.pedropathing.ivy.Command;
 import org.firstinspires.ftc.teamcode.config.subsystem.MecanumSubsystem;
 import org.firstinspires.ftc.teamcode.config.subsystem.TurretSubsystem;
 
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
 public class TurretCommand implements Command{
 
-    MecanumSubsystem follower;
+    MecanumSubsystem drive;
 
     TurretSubsystem turret;
 
-    public TurretCommand(TurretSubsystem turret, MecanumSubsystem follower){
+    public TurretCommand(TurretSubsystem turret, MecanumSubsystem drive){
         this.turret = turret;
-        this.follower = follower;
+        this.drive = drive;
     }
 
     @Override
     public Set<Object> requirements() {
         Set<Object> reqs = new HashSet<>();
         reqs.add(turret);
-        reqs.add(follower.getFollower());
+        reqs.add(drive.getFollower());
         return reqs;
     }
 
     @Override
     public void start(){
-        turret.setTargetHeading(follower);
+        turret.setTargetHeading(drive);
     }
 
     @Override
     public void execute(){
-        turret.setTargetHeading(follower);
+        turret.setTargetHeading(drive);
         turret.update();
     }
 
@@ -63,17 +61,17 @@ public class TurretCommand implements Command{
 
     @Override
     public InterruptedBehavior interruptedBehavior() {
-        return null;
+        return InterruptedBehavior.END;
     }
 
     @Override
     public ConflictBehavior conflictBehavior() {
-        return null;
+        return ConflictBehavior.OVERRIDE;
     }
 
     @Override
     public BlockedBehavior blockedBehavior() {
-        return null;
+        return BlockedBehavior.CANCEL;
     }
 
 }

@@ -9,7 +9,6 @@ import static org.firstinspires.ftc.teamcode.config.constants.RobotValues.TURRET
 import static org.firstinspires.ftc.teamcode.config.constants.RobotValues.TURRET_kD;
 import static org.firstinspires.ftc.teamcode.config.constants.RobotValues.TURRET_kP;
 
-import com.pedropathing.follower.Follower;
 import com.pedropathing.math.Pose;
 import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
 import com.qualcomm.robotcore.hardware.CRServo;
@@ -22,7 +21,6 @@ import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.UnnormalizedAngleUnit;
 
 
 public class TurretSubsystem {
@@ -39,13 +37,13 @@ public class TurretSubsystem {
 
     public static boolean USE_LOOKAHEAD = true;
 
-    MecanumSubsystem follower;
+    MecanumSubsystem drive;
 
     double t0, e0;
 
     Pose goalPose;
 
-    public TurretSubsystem(HardwareMap hardwareMap, Pose goalPose){
+    public TurretSubsystem(HardwareMap hardwareMap, MecanumSubsystem drive, Pose goalPose){
         servoL = hardwareMap.get(CRServoImplEx.class, "servoL");
         servoR = hardwareMap.get(CRServoImplEx.class, "servoR");
         encoder = hardwareMap.get(DcMotor.class, "hammer");
@@ -54,6 +52,8 @@ public class TurretSubsystem {
         pinpoint.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
         pinpoint.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.FORWARD, GoBildaPinpointDriver.EncoderDirection.FORWARD);
         encoder.setMode(STOP_AND_RESET_ENCODER);
+
+        this.drive = drive;
 
         this.goalPose = goalPose;
         
@@ -78,7 +78,7 @@ public class TurretSubsystem {
         return angleWrap(getEncoderPos() * TURRET_TICKS_DEGREES);
     }
 
-    public Pose getFuturePose(MecanumSubsystem follower){
+    public Pose getFuturePose(MecanumSubsystem drive){
         double xVel = pinpoint.getVelX(DistanceUnit.INCH);
         double yVel = pinpoint.getVelY(DistanceUnit.INCH);
         double headVel = pinpoint.getHeadingVelocity(AngleUnit.DEGREES.getUnnormalized());
@@ -87,15 +87,15 @@ public class TurretSubsystem {
         if(Double.isNaN(yVel) || Double.isInfinite(yVel)) yVel = 0.0;
         if(Double.isNaN(headVel) || Double.isInfinite(headVel)) headVel = 0.0;
 
-        double predX = follower.f.pose().x() + xVel * kTurret;
-        double predY = follower.f.pose().y() + yVel * kTurret;
-        double predHead = follower.f.pose().heading() + headVel * kTurretHeading;
+        double predX = drive.getFollower().pose().x() + xVel * kTurret;
+        double predY = drive.getFollower().pose().y() + yVel * kTurret;
+        double predHead = drive.getFollower().pose().heading() + headVel * kTurretHeading;
 
         return new Pose(predX, predY, predHead);
     }
 
-    public void setTargetHeading(MecanumSubsystem follower){
-        Pose currPose = USE_LOOKAHEAD ? getFuturePose(follower) : follower.f.pose();
+    public void setTargetHeading(MecanumSubsystem drive){
+        Pose currPose = USE_LOOKAHEAD ? getFuturePose(drive) : drive.getFollower().pose();
 
         double angle = Math.atan2((goalPose.y() - currPose.y()), (goalPose.x() - currPose.x()));
 

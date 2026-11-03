@@ -40,7 +40,6 @@ public class ShooterCommand implements Command {
     public Set<Object> requirements() {
         Set<Object> reqs = new HashSet<>();
         reqs.add(shooter.shooter);
-        reqs.add(follower.getFollower());
         reqs.add(hammer.hammer);
         reqs.add(hammer.trigger);
         reqs.add(hammer.ramp);

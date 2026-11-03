@@ -27,7 +27,6 @@ public class TurretCommand implements Command{
     public Set<Object> requirements() {
         Set<Object> reqs = new HashSet<>();
         reqs.add(turret);
-        reqs.add(drive.getFollower());
         return reqs;
     }
 

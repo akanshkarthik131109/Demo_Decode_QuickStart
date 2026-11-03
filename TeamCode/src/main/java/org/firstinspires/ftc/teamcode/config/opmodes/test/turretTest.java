@@ -45,6 +45,8 @@ public class turretTest extends Robot {
         super.schedule(new MecanumCommand(drive, vision, gamepad1));
 
         telemetry.addData("Pose", drive.getPose());
+        telemetry.addData("Servo Power", turret.getPower());
+        telemetry.addData("Turret Target Heading", turret.getTargetHeading());
         telemetry.update();
     }
 

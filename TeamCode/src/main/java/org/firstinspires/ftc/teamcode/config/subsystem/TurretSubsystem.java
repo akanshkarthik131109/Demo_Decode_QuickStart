@@ -65,6 +65,10 @@ public class TurretSubsystem {
 
     }
 
+    public double getTargetHeading(){
+        return targetHeading;
+    }
+
     public double getEncoderPos(){
         return encoder.getCurrentPosition();
     }
@@ -97,14 +101,15 @@ public class TurretSubsystem {
     public void setTargetHeading(MecanumSubsystem drive){
         Pose currPose = USE_LOOKAHEAD ? getFuturePose(drive) : drive.getFollower().pose();
 
-        double angle = Math.atan2((goalPose.y() - currPose.y()), (goalPose.x() - currPose.x()));
+        double angle = Math.toDegrees(Math.atan2( (goalPose.y() - currPose.y()), (goalPose.x() - currPose.x()) ));
 
-        targetHeading = 180 + angle - currPose.heading();
+        targetHeading = angleWrap(Math.toDegrees(currPose.heading()) - angle);
         targetHeading = Range.clip(targetHeading, TURRET_MIN_ANGLE, TURRET_MAX_ANGLE);
     }
 
     public void update(){
-        double currentDeg = getTurretDegrees();
+        Pose currPose = USE_LOOKAHEAD ? getFuturePose(drive) : drive.getFollower().pose();
+        double currentDeg = angleWrap(getTurretDegrees() + Math.toDegrees(currPose.heading()));
         double error = targetHeading - currentDeg;
         double currTime = time.milliseconds();
 
@@ -118,6 +123,10 @@ public class TurretSubsystem {
     public void setPower(double power){
         servoL.setPower(power);
         servoR.setPower(power);
+    }
+
+    public double getPower(){
+        return servoR.getPower();
     }
 
 

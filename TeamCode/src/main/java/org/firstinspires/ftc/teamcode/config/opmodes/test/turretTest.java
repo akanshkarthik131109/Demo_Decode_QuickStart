@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.config.opmodes.test;
 
+import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.pedropathing.math.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -36,6 +38,7 @@ public class turretTest extends Robot {
         vision = new VisionSubsystem(hardwareMap, a);
         schedule(new TurretCommand(turret, drive));
         schedule(new MecanumCommand(drive, vision, gamepad1));
+        telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
     }
 
     @Override
@@ -46,7 +49,10 @@ public class turretTest extends Robot {
 
         telemetry.addData("Pose", drive.getPose());
         telemetry.addData("Servo Power", turret.getPower());
-        telemetry.addData("Turret Target Heading", turret.getTargetHeading());
+        telemetry.addData("Absolute Angle", turret.getAbsoluteTarget(drive));
+        telemetry.addData("Ideal Turret Angle", turret.angleWrap(-turret.getAbsoluteTarget(drive) + Math.toDegrees(drive.getPose().heading())));
+        telemetry.addData("Current Turret Angle", turret.getTurretDegrees());
+        telemetry.addData("Theoretical Power", turret.power);
         telemetry.update();
     }
 

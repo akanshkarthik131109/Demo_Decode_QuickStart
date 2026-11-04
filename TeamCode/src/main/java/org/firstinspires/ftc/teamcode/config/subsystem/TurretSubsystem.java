@@ -35,13 +35,17 @@ public class TurretSubsystem {
     public static double kTurret = 0.7;
     public static double kTurretHeading = 0.13;
 
-    public static boolean USE_LOOKAHEAD = true;
+    public static boolean USE_LOOKAHEAD = false;
 
     MecanumSubsystem drive;
 
     double t0, e0;
 
     Pose goalPose;
+
+    public static double zeroOffset = 355;
+
+    public double power = 0;
 
     public TurretSubsystem(HardwareMap hardwareMap, MecanumSubsystem drive, Pose goalPose){
         servoL = hardwareMap.get(CRServoImplEx.class, "servoL");
@@ -79,7 +83,7 @@ public class TurretSubsystem {
         return deg;
     }
     public double getTurretDegrees(){
-        return angleWrap(getEncoderPos() * TURRET_TICKS_DEGREES);
+        return angleWrap(getEncoderPos() * TURRET_TICKS_DEGREES + zeroOffset);
     }
 
     public Pose getFuturePose(MecanumSubsystem drive){
@@ -98,22 +102,25 @@ public class TurretSubsystem {
         return new Pose(predX, predY, predHead);
     }
 
-    public void setTargetHeading(MecanumSubsystem drive){
+    public double getAbsoluteTarget(MecanumSubsystem drive){
         Pose currPose = USE_LOOKAHEAD ? getFuturePose(drive) : drive.getFollower().pose();
 
-        double angle = Math.toDegrees(Math.atan2( (goalPose.y() - currPose.y()), (goalPose.x() - currPose.x()) ));
+        return Math.toDegrees(Math.atan2( (goalPose.y() - currPose.y()), (goalPose.x() - currPose.x()) ));
+    }
 
-        targetHeading = angleWrap(Math.toDegrees(currPose.heading()) - angle);
+
+    public void setTargetHeading(MecanumSubsystem drive){
+        Pose currPose = USE_LOOKAHEAD ? getFuturePose(drive) : drive.getFollower().pose();
+        targetHeading = angleWrap(Math.toDegrees(- drive.getPose().heading()) + getAbsoluteTarget(drive));
         targetHeading = Range.clip(targetHeading, TURRET_MIN_ANGLE, TURRET_MAX_ANGLE);
     }
 
     public void update(){
-        Pose currPose = USE_LOOKAHEAD ? getFuturePose(drive) : drive.getFollower().pose();
-        double currentDeg = angleWrap(getTurretDegrees() + Math.toDegrees(currPose.heading()));
+        double currentDeg = angleWrap(getTurretDegrees());
         double error = targetHeading - currentDeg;
         double currTime = time.milliseconds();
 
-        double power = Range.clip(TURRET_kP * error + TURRET_kD * (error - e0)/(currTime - t0), -1.0, 1.0);
+        power = Range.clip(TURRET_kP * error + TURRET_kD * (error - e0)/(currTime - t0), -1.0, 1.0);
         setPower(power);
 
         t0 = currTime;

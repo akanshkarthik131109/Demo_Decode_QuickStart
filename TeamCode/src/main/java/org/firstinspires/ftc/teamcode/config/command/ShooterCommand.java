@@ -7,7 +7,6 @@ import com.pedropathing.ivy.behaviors.ConflictBehavior;
 import com.pedropathing.ivy.behaviors.EndCondition;
 import com.pedropathing.ivy.behaviors.InterruptedBehavior;
 
-import org.firstinspires.ftc.teamcode.config.Robot;
 import org.firstinspires.ftc.teamcode.config.constants.RobotValues;
 import org.firstinspires.ftc.teamcode.config.subsystem.HammerSubsystem;
 import org.firstinspires.ftc.teamcode.config.subsystem.IntakeSubsystem;
@@ -15,7 +14,6 @@ import org.firstinspires.ftc.teamcode.config.subsystem.MecanumSubsystem;
 import org.firstinspires.ftc.teamcode.config.subsystem.ShooterSubsystem;
 import org.firstinspires.ftc.teamcode.config.subsystem.SpindexerSubsystem;
 
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -24,7 +22,7 @@ public class ShooterCommand implements Command {
     ShooterSubsystem shooter;
     double distance;
     Pose currentPose;
-    MecanumSubsystem follower;
+    MecanumSubsystem drive;
     IntakeSubsystem intake;
     SpindexerSubsystem spindexer;
 
@@ -32,7 +30,7 @@ public class ShooterCommand implements Command {
 
     public ShooterCommand(ShooterSubsystem shooter, MecanumSubsystem follower, HammerSubsystem hammer){
         this.shooter = shooter;
-        this.follower = follower;
+        this.drive = follower;
         this.hammer = hammer;
     }
 
@@ -51,7 +49,7 @@ public class ShooterCommand implements Command {
 
     @Override
     public void execute(){
-        currentPose = follower.getPose();
+        currentPose = drive.getPose();
         if(shooter.isShooting) {
             hammer.setPower(RobotValues.HAMMER_POWER);
             hammer.rampPosition(RobotValues.RAMP_ENGAGED);

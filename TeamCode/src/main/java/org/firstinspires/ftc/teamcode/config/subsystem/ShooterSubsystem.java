@@ -5,7 +5,9 @@ import static org.firstinspires.ftc.teamcode.config.constants.RobotValues.SHOOTE
 import com.pedropathing.controllers.PIDController;
 import com.pedropathing.math.Pose;
 import com.pedropathing.paths.interpolator.Interpolator;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
@@ -13,6 +15,9 @@ import com.qualcomm.robotcore.util.Range;
 import static org.firstinspires.ftc.teamcode.config.constants.RobotValues.SHOOTER_PIDF;
 import static org.firstinspires.ftc.teamcode.config.constants.RobotValues.VELOCITYCOMP_GAIN_CLOSE;
 import static org.firstinspires.ftc.teamcode.config.constants.RobotValues.VELOCITYCOMP_GAIN_FAR;
+
+import java.util.ArrayList;
+import java.util.Arrays;
 
 public class ShooterSubsystem {
     public DcMotorEx shooter;
@@ -27,8 +32,9 @@ public class ShooterSubsystem {
 
     public ShooterSubsystem(HardwareMap hardwareMap, Pose goalPose){
         shooter = hardwareMap.get(DcMotorEx.class, "shooter");
+        shooter.setDirection(DcMotorSimple.Direction.REVERSE);
         hood = hardwareMap.get(Servo.class, "hood");
-
+        shooter.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         this.goalPose = goalPose;
 
         pidf = new PIDController(SHOOTER_PIDF.p, SHOOTER_PIDF.i, SHOOTER_PIDF.d);
@@ -36,7 +42,7 @@ public class ShooterSubsystem {
 
     public double[] interpolateDistance(double distance){
         int i = 0;
-        while(distance < SHOOTER_LOOKUP_TABLE[i][0]) {i++;}
+        while(i < SHOOTER_LOOKUP_TABLE.length && distance > SHOOTER_LOOKUP_TABLE[i][0]) {i++;}
 
         double d0 = SHOOTER_LOOKUP_TABLE[i][0];
         double d1 = SHOOTER_LOOKUP_TABLE[i + 1][0];
@@ -65,17 +71,25 @@ public class ShooterSubsystem {
                 SHOOTER_LOOKUP_TABLE[i + 1][4]
         );
 
-        return new double[]{shooterVel, hoodPos, spindexerVel, lookupTime};
+        return new double[]{shooterVel, hoodPos, spindexerVel, lookupTime, i, d0, d1};
+    }
+
+    public void bangbang(double targetVel){
+        if(getVelocity() < targetVel){
+            shooter.setPower(0.8);
+        }else{
+            shooter.setPower(0);
+        }
     }
 
     public double getVelocity() {
-        return -((((shooter.getVelocity())) / 28) * 60);
+        return shooter.getVelocity();
     }
 
 
     public void setWheelVel(double targetVel){
-        double power = pidf.calculate(getVelocity(), targetVel);
-        shooter.setPower(power);
+        double vel = pidf.calculate(targetVel, getVelocity());
+        shooter.setVelocity(vel);
     }
 
 
@@ -90,7 +104,7 @@ public class ShooterSubsystem {
     public void shoot(Pose currentPose){
         double distance = getDistance(currentPose);
         double shooterTarget = interpolateDistance(distance)[0];
-        setWheelVel(shooterTarget);
+        bangbang(shooterTarget);
 
         double currentVel = getVelocity();
         double gain = (distance > 90) ? VELOCITYCOMP_GAIN_FAR : VELOCITYCOMP_GAIN_CLOSE;

@@ -3,7 +3,9 @@ package org.firstinspires.ftc.teamcode.config.opmodes.test;
 import static com.pedropathing.ivy.Scheduler.schedule;
 import static com.pedropathing.ivy.commands.Commands.instant;
 
+import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.pedropathing.math.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -33,7 +35,7 @@ public class shooterTestPid extends Robot {
     @Override
     public void init(){
         super.reset();
-
+        telemetry = new MultipleTelemetry(FtcDashboard.getInstance().getTelemetry());
         shooter = new ShooterSubsystem(hardwareMap, goalPose);
         drive = new MecanumSubsystem(hardwareMap, a, start);
         hammer = new HammerSubsystem(hardwareMap);
@@ -46,8 +48,8 @@ public class shooterTestPid extends Robot {
         }
         
 
-        if(gamepad1.y) targetVel += 500;
-        if(gamepad1.a) targetVel -= 500;
+        if(gamepad1.yWasPressed()) targetVel += 500;
+        if(gamepad1.aWasPressed()) targetVel -= 500;
         schedule(instant(() -> shooter.setWheelVel(targetVel)));
 
 
@@ -57,7 +59,7 @@ public class shooterTestPid extends Robot {
         super.loop();
 
 
-        telemetry.addData("KF Estimate", shooter.getVelocity());
+        telemetry.addData("Velocity", shooter.getVelocity());
         telemetry.addData("Target Velocity", targetVel);
         telemetry.update();
     }

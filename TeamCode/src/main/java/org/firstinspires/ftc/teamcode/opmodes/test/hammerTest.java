@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.config.opmodes.test;
+package org.firstinspires.ftc.teamcode.opmodes.test;
 
 import static org.firstinspires.ftc.teamcode.config.constants.RobotValues.HAMMER_POWER;
 import static org.firstinspires.ftc.teamcode.config.constants.RobotValues.RAMP_DISENGAGED;

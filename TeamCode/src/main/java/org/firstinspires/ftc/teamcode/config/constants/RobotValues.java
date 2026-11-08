@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.config.constants;
 
 import com.acmerobotics.dashboard.config.Config;
+import com.pedropathing.math.Pose;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot.LogoFacingDirection;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot.UsbFacingDirection;
@@ -31,9 +32,10 @@ public class RobotValues {
     public static double HOOD_MIN = 0; //touching edge
     public static double VELOCITYCOMP_GAIN_FAR = 1.3;
     public static double VELOCITYCOMP_GAIN_CLOSE = 0.4;
+    public static Pose goalPose = new Pose(128, 128);
 
     public static double[][] SHOOTER_LOOKUP_TABLE = {
-    //Distance, Shooter Vel, Hood Pos, Spindexer Speed, lookuptime
+            //Distance, Shooter Vel, Hood Pos, Spindexer Speed, lookuptime
             {0,    1420, 0.05,  3099, 0},
             {23,   1420, 0.05,  2791, 0.3},
             {46,   1440, 0.35,  2500, 0.7},
@@ -92,9 +94,9 @@ public class RobotValues {
     public static int ZONE_FAR = 2;
     public static int ZONE_NONE = 0;
     public static double[][] cornerOffsets = {  {3.307, -7.5},
-                                                {3.307, 7.5},
-                                                {-7.086, -7.5},
-                                                {-7.086, 7.5}};
+            {3.307, 7.5},
+            {-7.086, -7.5},
+            {-7.086, 7.5}};
     public static int RED_TAG_ID = 24;
     public static int BLUE_TAG_ID = 20;
     public static double TARGET_X = -63;

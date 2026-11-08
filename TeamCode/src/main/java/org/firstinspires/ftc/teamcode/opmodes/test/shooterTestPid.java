@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.config.opmodes.test;
+package org.firstinspires.ftc.teamcode.opmodes.test;
 
 import static com.pedropathing.ivy.Scheduler.schedule;
 import static com.pedropathing.ivy.commands.Commands.instant;

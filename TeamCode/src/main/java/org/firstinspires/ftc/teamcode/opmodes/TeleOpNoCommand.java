@@ -1,8 +1,8 @@
-package org.firstinspires.ftc.teamcode.config.opmodes;
+package org.firstinspires.ftc.teamcode.opmodes;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
-import org.firstinspires.ftc.teamcode.config.Robot;
 import org.firstinspires.ftc.teamcode.config.subsystem.HammerSubsystem;
 import org.firstinspires.ftc.teamcode.config.subsystem.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.config.subsystem.MecanumSubsystem;
@@ -11,7 +11,10 @@ import org.firstinspires.ftc.teamcode.config.subsystem.SpindexerSubsystem;
 import org.firstinspires.ftc.teamcode.config.subsystem.TurretSubsystem;
 import org.firstinspires.ftc.teamcode.config.subsystem.VisionSubsystem;
 
-public class TeleOpWithCommands extends Robot {
+
+@Config
+public class TeleOpNoCommand extends OpMode {
+
     HammerSubsystem hammer;
     IntakeSubsystem intake;
     MecanumSubsystem drive;
@@ -27,8 +30,7 @@ public class TeleOpWithCommands extends Robot {
 
     @Override
     public void loop(){
-        super.loop();
-
 
     }
+
 }
